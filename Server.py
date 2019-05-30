@@ -16,7 +16,7 @@ class Server:
 		# 生成SSL上下文
 		# context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
 		# 加载服务器所用证书和私钥
-		# context.load_cert_chain('/etc/stunnel/rtsp.iloveismarthome.com.pem', '/etc/stunnel/rtsp.iloveismarthome.com.key')
+		# context.load_cert_chain('/etc/stunnel/test.pem', '/etc/stunnel/test.key')
 		rtspSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 		rtspSocket.bind(('', SERVER_PORT))
 		logging.info("RTSPserver bind prot: " + str(SERVER_PORT))
