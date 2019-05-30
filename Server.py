@@ -1,14 +1,19 @@
 ## python3 env
 __author__ = 'Dengbo'
-import sys, socket, os, logging, ssl
 
+import sys
+import socket
+import os
+import ssl
 from ServerWorker import ServerWorker
+from Log import Log
+
+
 class Server:
 
 	def main(self):
-		logging.basicConfig(level=logging.DEBUG,
-							format='%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s',
-							datefmt='%a, %d %b %Y %H:%M:%S', filename="rtsp.log", filemode='a')
+		log = Log()
+		logging = log.GetLogging()
 		try:
 			SERVER_PORT = int(sys.argv[1])
 		except:
@@ -16,7 +21,7 @@ class Server:
 		# 生成SSL上下文
 		# context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
 		# 加载服务器所用证书和私钥
-		# context.load_cert_chain('/etc/stunnel/test.pem', '/etc/stunnel/test.key')
+		# context.load_cert_chain('/etc/stunnel/rtsp.iloveismarthome.com.pem', '/etc/stunnel/rtsp.iloveismarthome.com.key')
 		rtspSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 		rtspSocket.bind(('', SERVER_PORT))
 		logging.info("RTSPserver bind prot: " + str(SERVER_PORT))

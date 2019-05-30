@@ -1,17 +1,21 @@
 __author__ = 'Dengbo'
 
-import pymysql, configparser
-cf = configparser.ConfigParser()
-cf.read("config.ini")
-HOST = cf.get('mysql', 'host')
-USER = cf.get('mysql', 'user')
-PWD = cf.get('mysql', 'password')
-DB = cf.get('mysql', 'db')
+import pymysql
+import configparser
+
 
 class Database:
+
+    cf = configparser.ConfigParser()
+    cf.read("config.ini")
+    HOST = cf.get('mysql', 'host')
+    USER = cf.get('mysql', 'user')
+    PWD = cf.get('mysql', 'password')
+    DB = cf.get('mysql', 'db')
+
     def __init__(self):
         try:
-            self.conn = pymysql.connect(HOST, USER, PWD, DB)
+            self.conn = pymysql.connect(self.HOST, self.USER, self.PWD, self.DB)
             self.cursor = self.conn.cursor()
         except:
             print("Error: connect mysql error")

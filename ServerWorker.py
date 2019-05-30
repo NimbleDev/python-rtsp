@@ -1,23 +1,25 @@
 __author__ = 'Dengbo'
 
 import time
-import threading, logging
+import threading
 from Database import Database
+from Log import Log
+
 
 class ServerWorker:
 	OPTIONS = 'OPTIONS'
 	DESCRIBE = 'DESCRIBE'
 
 	clientInfo = {}
+	logging = {}
 	t = {}
 
 	def __init__(self, clientInfo):
 		self.clientInfo = clientInfo
+		log = Log()
+		self.logging = log.GetLogging()
 
 	def run(self):
-		logging.basicConfig(level=logging.DEBUG,
-							format='%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s',
-							datefmt='%a, %d %b %Y %H:%M:%S', filename="rtsp.log", filemode='a')
 		self.clientInfo['event'] = threading.Event()
 		self.t = threading.Thread(target=self.recvRtspRequest)
 		self.t.start()
@@ -42,7 +44,7 @@ class ServerWorker:
 				break
 		self.clientInfo['event'].set()
 		connSocket.close()
-		logging.info("server success response")
+		self.logging.info("server success response")
 	def processRtspRequest(self, data):
 		"""Process RTSP request sent from the client."""
 		# Get the request type
@@ -61,7 +63,7 @@ class ServerWorker:
 		print('-' * 60 + "\nseq :" + str(seq) + "\n" + '-' * 60)
 		# Process OPTION request
 		if requestType == self.OPTIONS:
-			logging.info("OPTION Request received")
+			self.logging.info("OPTION Request received")
 			# print("OPTION Request received\n")
 			nowDate = time.strftime("%a %b %d %Y %H:%M:%S", time.localtime())
 			reply = 'RTSP/1.0 200 OK\r\nCSeq: ' + seq + 'Date: ' +  nowDate + ' GMT + 8\r\nPublic: OPTIONS, DESCRIBE, SETUP, TEARDOWN, PLAY, PAUSE, GET_PARAMETER, SET_PARAMETER\r\n\r\n'
@@ -73,17 +75,17 @@ class ServerWorker:
 			return False
 		# -> REDIRECT 301
 		elif requestType == self.DESCRIBE:
-			logging.info("DESCRIBE Request received")
+			self.logging.info("DESCRIBE Request received")
 			print("DESCRIBE Request received\n")
 			if len(line1[1].split('/')) > 3 :
 				camera_stream_id = line1[1].split('/')[3]
-				logging.info("camera_stream_id: " + camera_stream_id)
+				self.logging.info("camera_stream_id: " + camera_stream_id)
 				db = Database()
 				sql = "select local_rtsp from camera_stream where id = %s"
 				param = camera_stream_id
 				uri = db.self_sql(sql, param)
 				if uri == -1:
-					logging.error('mysql select error...')
+					self.logging.error('mysql select error...')
 					return True
 				reply = 'RTSP/1.0 301 Moved\r\nCSeq: ' + seq + '\r\nLocation: ' + uri + '\r\n\r\n'
 				# logging.info("server send: " + reply)
@@ -91,9 +93,9 @@ class ServerWorker:
 				reply = reply.encode("utf-8")
 				connSocket = self.clientInfo['rtspSocket'][0]
 				connSocket.send(reply)
-				logging.info("--> Redirect 301 Location: " + uri)
+				self.logging.info("--> Redirect 301 Location: " + uri)
 			else:
-				logging.error("Invalid camera uid")
+				self.logging.error("Invalid camera uid")
 			return True
 		else:
 			return True
